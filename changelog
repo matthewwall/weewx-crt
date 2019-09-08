@@ -1,0 +1,138 @@
+0.20
+* support for realtimegaugesTMX.txt
+
+0.19
+* support sunbird and realtime.xml
+
+0.18 10apr2016
+* graceful recovery when no forecast binding defined
+* refactor unit conversions to support per-observation unit specifications
+* more fixes from gary for better unit conversions and cumulus compliance
+
+0.17 28mar2016
+* lots of fixes from gary roderick:
+* Introduced StrictVersion to more easily compare weewx version numbers.
+* crt now requires weewx 3.2.0 or later.
+* Fixed UNITS_RAIN typo, weewx rain unit is 'inch' not 'in'.
+* Added UNITS_ALT to facilitate cloudbase units lookup.
+* Replaced knottoBeaufort() with call to weewx.wxformulas.beaufort().
+* cloudbase, maxSolarRad, humidex, appTemp and heatindex are now included in
+  weewx loop packets so removed manual calculations of these obs.
+* Side benefit of using maxSolarRad from loop packet means crt no longer
+  crashes if pyephem is not installed.
+* Reworked calcDaylightHours() to use Almanac objects
+  rather than Sun object calcs so that additional accuracy of pyephem can be
+  taken advantage of if installed.
+* Weewx is now windrun aware though windrun is not included in loop packets.
+* Reworked windrun unit conversions to make use of weewx API.
+* Sunshine hours calculations remain flawed but it now uses an Almanac
+  object as the basis for its calculation.
+* radiation had no formatting applied resulting in numerous decimal places
+  in realtime.txt, reduced that to 1 decimal place (probably only an issue
+  with simulator).
+* Minor changes to some packet names to reflect new fields now in weewx loop
+  packet eg cloud_base v cloudbase.
+* Found that crt would fail if used with an empty archive (could not get db
+  US units to do conversion so _cvt() method would cause a failure). Was a
+  vicious circle; if used with an empty archive crt would cause weewx to fail
+  and because weewx failed you could never get any records into the archive.
+  The only work around was to not install/run crt on an empty archive. I
+  reworked the _cvt() method to return None is the archive has no records,
+  gives a lot of NULLs in the output until you get records in the archive then
+  it operates as normal.
+* Did some further comparison of Cumulus realtime.txt wiki page and Cumulus
+  Webtags wiki page. By cross referencing the Webtags between the wiki pages
+  it was possible to confirm details of a number of realtime.txt fields:
+   - field 6 (wind avg speed)and field 47 (wind avg dir). Averaging period is
+     not mentioned directly although the corresponding Webtags use 10 minute
+     averages by default. This confirms current crt settings.
+   - field 52 (avg_wind_dir). This is the compass direction of the 10 min
+     average wind bearing, changed code to reflect this.
+   - Cumulus uses wind direction of 0+ to 360 with 0 indicating calm.
+* Reworked calcAvgWindDir() and calc10MinAvgWindDir() to return None or
+  0+ to 360 rather than None or 0 to 360-.
+* Given the way Cumulus represents wind direction introduced
+  data['cumulus_windDir'] mainly to differentiate from/not overwrite
+  data['windDir']
+* Confirmed that month and year rain are month to date and year to date
+  values from 1st of month and year respectively. Removed 2 related FIXME
+  comments.
+* field 11 is listed as in the realtime.txt wiki page as 'barometer (The
+  sea level pressure)' with the equivalent webtag of #press. #press is listed
+  in the webtags wiki page as 'The sea level pressure'. These are completely
+  consistent with using weewx 'barometer'. Removed the comment re uncertainty
+  over what pressure is specified in realtime.txt.
+* Observed a number of real world live realtime.txt files and confirmed that:
+   - realtime.txt uses local time. Reworked date/time to use local time
+     throughout.
+   - None/NULL handling is not specified in Cumulus realtime.txt wiki but
+     observation of a number of realtime sites showed that when there is no
+     wind, wind speeds are set to 0 not NULL. Introduced 'none' setting in
+     weewx.conf	[CumulusRealTime] to allow user specification of what
+     character/sequence of
+     characters will be displayed in place of 'None' values in realtime.txt.
+     Default setting is NULL.
+   - Confirmed that Cumulus replaces compass points with '---' if it is
+     calm/no wind. Implemented this via change to format()
+
+0.16 27feb2016
+* fix 'is sunny'
+
+0.15 12feb2016
+* include zambretti forecast if forecast extension is installed
+
+0.14 14oct2015
+* update readme with weewx 3.x instructions
+
+0.13 02aug2015
+* re-raise unexpected exceptions
+
+0.12 25jan2015
+* fixed trend calculations
+* fixed dayRain query
+* fixed wind run calculation
+* calculate maximum solar radiation
+
+0.11 14jan2015
+* typo in windChill should be windchill
+* fixed a bunch of units conversions
+* output floats to 0 or 1 decimal places as per the cumulus example
+
+0.10 14jan2015
+* added unit_system option
+
+0.9 08dec2014
+* do not use with construction for managers
+
+0.8 06dec2014
+* update for weewx v3
+
+0.7
+* fixed VERSION tag
+* use windSpeed rather than gust for 10 minute average wind bearing
+* added binding option for loop or archive
+
+0.6 31aug2014
+* check for None values in wind speed
+
+0.5 05jun2014
+* ensure compatibility with mysql
+
+0.4 03jun2014
+* more partial packet fixes
+* forgot the syslog import
+* fixed name of config file stanza
+
+0.3 03jun2014
+* deal with None values from partial packets (e.g., from WMR100 stations)
+
+0.2 29apr2014
+* aggregate excluding previous period
+* fix trend calculations
+* parameterize the wind speed/dir avg intervals
+* ensure NULL instead of None in output
+* use barometer (slp) instead of pressure (gauge)
+* calculate temperature trend
+
+0.1 28apr2014
+* initial release as packaged weewx extension

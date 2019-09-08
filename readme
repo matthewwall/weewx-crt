@@ -1,0 +1,39 @@
+crt - Cumulus Real Time
+Copyright 2014-2017 Matthew Wall
+Distributed under terms of the GPLv3
+
+crt is a weewx extension that emits a realtime.txt file in the format
+specified by Cumulus
+
+  http://wiki.sandaysoft.com/a/Realtime.txt
+
+This extension can output three different files:
+
+  realtime.txt
+  realtime.xml
+  sunbird
+
+
+===============================================================================
+Installation instructions:
+
+1) run the installer
+
+wee_extension --install weewx-crt.tgz
+
+2) restart weewx
+
+sudo /etc/init.d/weewx stop
+sudo /etc/init.d/weewx start
+
+
+===============================================================================
+Configuration options:
+
+The default configuration emits only realtime.txt to /var/tmp/realtime.txt
+To emit the XML or sunbird files, specify them in the CRT configuration stanza.
+
+[CumulusRealTime]
+    realtime_txt = /path/to/realtime.txt
+    realtime_xml = /path/to/realtime.xml
+    sunbird = /path/to/sunbird.txt
