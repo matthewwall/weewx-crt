@@ -1,9 +1,8 @@
-# $Id: install.py 1665 2017-01-29 00:41:10Z mwall $
 # installer for crt
 # Copyright 2014-2017 Matthew Wall
-# Distributed under terms of the GPLv3
+# Distributed under the terms of the GNU Public License (GPLv3)
 
-from setup import ExtensionInstaller
+from weecfg.extension import ExtensionInstaller
 
 def loader():
     return CRTInstaller()
