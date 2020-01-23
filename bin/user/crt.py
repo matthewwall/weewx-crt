@@ -32,6 +32,7 @@ Other parameters may be specified to control units and output:
 [CumulusRealTime]
     realtime_txt = /path/to/realtime.txt
     realtime_xml = /path/to/realtime.xml
+    realtime_url = http://server:port/url
     sunbird = /path/to/sunbird.txt
     realtimegauges_txt = /path/to/realtimegaugesT.txt
     date_separator = /
@@ -81,6 +82,7 @@ from a number of live Cumulus sites:
 import math
 import time
 import syslog
+import requests
 from distutils.version import StrictVersion
 
 import weewx
@@ -464,11 +466,15 @@ class CumulusRealTime(StdService):
         self.gauges_txt = d.get('realtimegauges_txt')
         if self.gauges_txt:
             loginf("gauges output goes to %s" % self.gauges_txt)
+        self.realtime_url = d.get('realtime_url')
+        if self.realtime_url:
+            loginf("realtime txt output posted to %s" % self.realtime_url)
 
         if (not self.realtime_txt and
             not self.realtime_xml and
             not self.sunbird_txt and
-            not self.gauges_txt):
+            not self.gauges_txt and
+            not self.realtime_url):
             loginf("aborted: no output files specified")
             return
 
@@ -538,6 +544,9 @@ class CumulusRealTime(StdService):
             if self.gauges_txt:
                 self.write_data(self.gauges_txt,
                                 self.create_gauges_string(data))
+            if self.realtime_url:
+                self.post_data(self.realtime_url,
+                                self.create_realtime_string(data))
         except Exception, e: # FIXME: make this catch more specific
             logdbg("crt: Exception while handling data: %s" % e)
             weeutil.weeutil.log_traceback('crt: **** ')
@@ -547,6 +556,14 @@ class CumulusRealTime(StdService):
         with open(filename, 'w') as f:
             f.write(data)
             f.write("\n")
+
+    def post_data(self, url, data):
+        try:
+            r = requests.post(url = url, data = data)
+            if r.status_code != 200:
+                logerr("crt: Failed to post realtime data to %s: %d" % (url, r.status_code))
+        except Exception, e:
+            logdbg("crt: Exception while sending realtime data to server.")
 
     # convert from database unit system to specified units
     def _cvt(self, from_v, to_units, obs, group):
