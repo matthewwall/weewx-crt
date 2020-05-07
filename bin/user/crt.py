@@ -1,5 +1,4 @@
-# $Id: crt.py 1673 2017-02-14 12:26:35Z mwall $
-# Copyright 2013-2017 Matthew Wall
+# Copyright 2013-2020 Matthew Wall
 # Distributed under terms of the GPLv3
 # thanks to gary roderick for significant contributions to this code
 
@@ -78,9 +77,10 @@ from a number of live Cumulus sites:
 # FIXME: consider in-memory caching so that database queries are not
 #        necessary after the first invocation
 
-import math
+# FIXME: Presently, the code tries to calculate statistics internally. Let weewx do it.
+
+from __future__ import absolute_import
 import time
-import syslog
 from distutils.version import StrictVersion
 
 import weewx
@@ -91,25 +91,43 @@ import weeutil.weeutil
 import weedb
 from weewx.engine import StdService
 
-VERSION = "0.20"
+VERSION = "0.30"
 
 REQUIRED_WEEWX = "3.5.0"
 if StrictVersion(weewx.__version__) < StrictVersion(REQUIRED_WEEWX):
     raise weewx.UnsupportedFeature("weewx %s or greater is required, found %s"
                                    % (REQUIRED_WEEWX, weewx.__version__))
 
-def logmsg(level, msg):
-    syslog.syslog(level, 'crt: %s' % msg)
+try:
+    # Test for new-style weewx logging by trying to import weeutil.logger
+    import weeutil.logger
+    import logging
+    log = logging.getLogger(__name__)
 
-def logdbg(msg):
-    logmsg(syslog.LOG_DEBUG, msg)
+    def logdbg(msg):
+        log.debug(msg)
 
-def loginf(msg):
-    logmsg(syslog.LOG_INFO, msg)
+    def loginf(msg):
+        log.info(msg)
 
-def logerr(msg):
-    logmsg(syslog.LOG_ERR, msg)
+    def logerr(msg):
+        log.error(msg)
 
+except ImportError:
+    # Old-style weewx logging
+    import syslog
+
+    def logmsg(level, msg):
+        syslog.syslog(level, 'crt: %s' % msg)
+
+    def logdbg(msg):
+        logmsg(syslog.LOG_DEBUG, msg)
+
+    def loginf(msg):
+        logmsg(syslog.LOG_INFO, msg)
+
+    def logerr(msg):
+        logmsg(syslog.LOG_ERR, msg)
 
 # FIXME: get these from the forecast extension
 # FIXME: ensure the forecast extension makes these available via i18n
@@ -204,6 +222,7 @@ def calc_avg_windspeed(dbm, ts, interval=600):
     return val[0] if val is not None else None
 
 def calc_avg_winddir(dbm, ts, interval=600):
+    # FIXME: This calculates the scalar average, not the vector average, wind direction. Not what we want.
     sts = ts - interval
     val = dbm.getSql("SELECT AVG(windDir) FROM %s "
                      "WHERE dateTime>? AND dateTime<=?" % dbm.table_name,
@@ -219,6 +238,7 @@ def calc_max_gust_10min(dbm, ts):
 
 def calc_avg_winddir_10min(dbm, ts):
     sts = ts - 600
+    # FIXME: This calculates the scalar average, not the vector average, wind direction. Not what we want.
     val = dbm.getSql("SELECT AVG(windDir) FROM %s "
                      "WHERE dateTime>? AND dateTime<=?" % dbm.table_name,
                      (sts, ts))
@@ -382,7 +402,7 @@ def lost_sensor_contact(packet):
         return 1
     return 0
 
-class ZambrettiForecast():
+class ZambrettiForecast(object):
     DEFAULT_FORECAST_BINDING = 'forecast_binding'
     DEFAULT_BINDING_DICT = {
         'database': 'forecast_sqlite',
@@ -422,7 +442,7 @@ class ZambrettiForecast():
                     record = dbm.getSql(sql)
                     if record is not None:
                         return record[1]
-                except Exception, e: # FIXME: make this more specific
+                except Exception as e: # FIXME: make this more specific
                     logerr('get zambretti failed (attempt %d of %d): %s' %
                            ((count + 1), self.db_max_tries, e))
                     logdbg('waiting %d seconds before retry' %
@@ -538,7 +558,7 @@ class CumulusRealTime(StdService):
             if self.gauges_txt:
                 self.write_data(self.gauges_txt,
                                 self.create_gauges_string(data))
-        except Exception, e: # FIXME: make this catch more specific
+        except Exception as e: # FIXME: make this catch more specific
             logdbg("crt: Exception while handling data: %s" % e)
             weeutil.weeutil.log_traceback('crt: **** ')
             raise
@@ -595,7 +615,7 @@ class CumulusRealTime(StdService):
         if self.db_us is None:
             try:
                 self.db_us = get_db_units(dbm)
-            except weedb.DatabaseError, e:
+            except weedb.DatabaseError as e:
                 logerr("cannot determine database units: %s" % e)
                 return dict()
 
