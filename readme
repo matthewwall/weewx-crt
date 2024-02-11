@@ -1,5 +1,5 @@
 crt - Cumulus Real Time
-Copyright 2014-2017 Matthew Wall
+Copyright 2014-2024 Matthew Wall
 Distributed under terms of the GPLv3
 
 crt is a weewx extension that emits a realtime.txt file in the format
@@ -17,18 +17,17 @@ This extension can output three different files:
 ===============================================================================
 Installation instructions:
 
-1) run the installer
+1) run the extension installer
 
-wee_extension --install weewx-crt.tgz
+  weectl extension install https://github.com/matthewwall/weewx-crt/archive/refs/heads/master.zip
 
 2) restart weewx
-
-sudo /etc/init.d/weewx stop
-sudo /etc/init.d/weewx start
 
 
 ===============================================================================
 Configuration options:
+
+Specify options in the CumulusRealTime section of the weeWX configuration file.
 
 The default configuration emits only realtime.txt to /var/tmp/realtime.txt
 To emit the XML or sunbird files, specify them in the CRT configuration stanza.
@@ -37,3 +36,22 @@ To emit the XML or sunbird files, specify them in the CRT configuration stanza.
     realtime_txt = /path/to/realtime.txt
     realtime_xml = /path/to/realtime.xml
     sunbird = /path/to/sunbird.txt
+
+The default configuration binds to loop packets.  If you use CRT with a driver
+that emits partial packets, you may see many NULL values.  Bind to archive
+records to get full packet data.
+
+[CumulusRealTime]
+    binding = archive    # default is 'loop'
+
+Control the units using settings for unit_system or individual observations.
+
+[CumulusRealTime]
+    unit_system = (US | METRIC | METRICWX)
+    wind_units = (meter_per_second | mile_per_hour | km_per_hour | knot)
+    temperature_units = (degree_C | degree_F)
+    pressure_units = (hPa | mbar | inHg)
+    rain_units = (mm | inch)
+    cloudbase_units = (foot | meter)
+
+For details about options, see the documentation in the crt.py file.
