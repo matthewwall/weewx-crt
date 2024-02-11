@@ -755,7 +755,7 @@ class CumulusRealTime(StdService):
         data['is_daylight'] = calc_is_daylight(alm)
         data['sunshine_hours'] = calc_daylight_hours(alm)
         data['is_sunny'] = calc_is_sunny(data.get('radiation'),
-                                         data.get('max_rad'),
+                                         data.get('maxSolarRad'),
                                          self.sunny_threshold)
         code = self.forecast.get_zambretti_code()
         data['zambretti_code'] = ZambrettiForecast.alpha_to_number(code)
