@@ -1,5 +1,6 @@
-0.22 31may2020
-* deal with eternal sunshine in polar regions
+0.22 11feb2024
+* deal with eternal sunshine in polar regions (fix issue #3)
+* no more log_traceback (fix issue #11)
 
 0.21 07may2020
 * Ported to Python 3 and WeeWX V4. -tk

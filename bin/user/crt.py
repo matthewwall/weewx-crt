@@ -91,7 +91,7 @@ import weeutil.weeutil
 import weedb
 from weewx.engine import StdService
 
-VERSION = "0.21"
+VERSION = "0.22"
 
 REQUIRED_WEEWX = "3.5.0"
 if StrictVersion(weewx.__version__) < StrictVersion(REQUIRED_WEEWX):
@@ -99,35 +99,32 @@ if StrictVersion(weewx.__version__) < StrictVersion(REQUIRED_WEEWX):
                                    % (REQUIRED_WEEWX, weewx.__version__))
 
 try:
-    # Test for new-style weewx logging by trying to import weeutil.logger
+    # weeWX v4+ logging
     import weeutil.logger
     import logging
     log = logging.getLogger(__name__)
-
     def logdbg(msg):
         log.debug(msg)
-
     def loginf(msg):
         log.info(msg)
-
     def logerr(msg):
         log.error(msg)
-
+    def traceback():
+        weeutil.logger.log_traceback(log.warn, 'crt: *** ')
 except ImportError:
-    # Old-style weewx logging
+    # weeWX v3 logging
     import syslog
-
     def logmsg(level, msg):
         syslog.syslog(level, 'crt: %s' % msg)
-
     def logdbg(msg):
         logmsg(syslog.LOG_DEBUG, msg)
-
     def loginf(msg):
         logmsg(syslog.LOG_INFO, msg)
-
     def logerr(msg):
         logmsg(syslog.LOG_ERR, msg)
+    def traceback():
+        weeutil.weeutil.log_traceback('crt: **** ')
+
 
 # FIXME: get these from the forecast extension
 # FIXME: ensure the forecast extension makes these available via i18n
@@ -569,7 +566,7 @@ class CumulusRealTime(StdService):
                                 self.create_gauges_string(data))
         except Exception as e: # FIXME: make this catch more specific
             logdbg("crt: Exception while handling data: %s" % e)
-            weeutil.weeutil.log_traceback('crt: **** ')
+            traceback('crt: *** ')
             raise
 
     def write_data(self, filename, data):
