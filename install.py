@@ -1,5 +1,5 @@
 # installer for crt
-# Copyright 2014-2017 Matthew Wall
+# Copyright 2014-2024 Matthew Wall
 # Distributed under the terms of the GNU Public License (GPLv3)
 
 from weecfg.extension import ExtensionInstaller
@@ -10,7 +10,7 @@ def loader():
 class CRTInstaller(ExtensionInstaller):
     def __init__(self):
         super(CRTInstaller, self).__init__(
-            version="0.22",
+            version="0.23",
             name='crt',
             description='Emit a Cumulus realtime.txt for LOOP data.',
             author="Matthew Wall",

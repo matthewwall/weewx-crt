@@ -1,3 +1,6 @@
+0.23 11feb2024
+* use maxSolarRad instead of max_rad (thanks to xslima00)
+
 0.22 11feb2024
 * deal with eternal sunshine in polar regions (fix issue #3)
 * no more log_traceback (fix issue #11)

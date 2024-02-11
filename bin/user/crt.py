@@ -1,4 +1,4 @@
-# Copyright 2013-2020 Matthew Wall
+# Copyright 2013-2024 Matthew Wall
 # Distributed under terms of the GPLv3
 # thanks to gary roderick for significant contributions to this code
 
@@ -91,7 +91,7 @@ import weeutil.weeutil
 import weedb
 from weewx.engine import StdService
 
-VERSION = "0.22"
+VERSION = "0.23"
 
 REQUIRED_WEEWX = "3.5.0"
 if StrictVersion(weewx.__version__) < StrictVersion(REQUIRED_WEEWX):
