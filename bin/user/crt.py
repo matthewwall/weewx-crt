@@ -345,6 +345,15 @@ def calc_is_daylight(alm):
 def calc_daylight_hours(alm):
     sunrise = alm.sunrise.raw
     sunset = alm.sunset.raw
+    if sunrise is None and sunset is None:
+        # either 0 or 24
+        return 0
+    elif sunrise is None:
+        # no sunrise, but there is a sunset
+        return 0
+    elif sunset is None:
+        return 24
+
     if alm.time_ts <= sunrise:
         return 0
     elif alm.time_ts < sunset:
