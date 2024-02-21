@@ -2,7 +2,7 @@ crt - Cumulus Real Time
 Copyright 2014-2024 Matthew Wall
 Distributed under terms of the GPLv3
 
-crt is a weewx extension that emits a realtime.txt file in the format
+crt is a weeWX extension that emits a realtime.txt file in the format
 specified by Cumulus
 
   http://wiki.sandaysoft.com/a/Realtime.txt
@@ -15,17 +15,26 @@ This extension can output three different files:
 
 
 ===============================================================================
-Installation instructions:
+Installation
 
-1) run the extension installer
+1) install the extension
 
-  weectl extension install https://github.com/matthewwall/weewx-crt/archive/refs/heads/master.zip
+  weectl extension install https://github.com/matthewwall/weewx-crt/archive/master.zip
 
 2) restart weewx
 
 
 ===============================================================================
-Configuration options:
+Permissions
+
+Be sure that the user running weeWX has permission to write the CRT file(s).
+The default location for the files is /var/tmp, but if you change this to a
+different location, the user running weeWX must be able to write to that
+directory.
+
+
+===============================================================================
+Configuration options
 
 Specify options in the CumulusRealTime section of the weeWX configuration file.
 
