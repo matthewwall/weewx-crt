@@ -81,7 +81,6 @@ from a number of live Cumulus sites:
 
 from __future__ import absolute_import
 import time
-from distutils.version import StrictVersion
 
 import weewx
 import weewx.almanac
@@ -94,7 +93,10 @@ from weewx.engine import StdService
 VERSION = "0.23"
 
 REQUIRED_WEEWX = "3.5.0"
-if StrictVersion(weewx.__version__) < StrictVersion(REQUIRED_WEEWX):
+def _version_tuple(v):
+    return tuple(int(x) for x in v.split('.')[:3] if x.isdigit())
+
+if _version_tuple(weewx.__version__) < _version_tuple(REQUIRED_WEEWX):
     raise weewx.UnsupportedFeature("weewx %s or greater is required, found %s"
                                    % (REQUIRED_WEEWX, weewx.__version__))
 
